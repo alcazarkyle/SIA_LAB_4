@@ -3,37 +3,234 @@
 <head>
     <title>Admin Dashboard</title>
     <style>
-        body { font-family: Arial; max-width: 1000px; margin: 20px auto; padding: 0 20px; }
-        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
-        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
-        th { background: #f4f4f4; }
-        button { padding: 5px 10px; margin: 2px; cursor: pointer; }
-        #liveFeed { background: #f9f9f9; padding: 15px; border-radius: 5px; height: 150px; overflow-y: auto; }
-        .hidden { display: none; }
-        #editModal { background: white; padding: 20px; border: 1px solid #ccc; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 100; }
-        .overlay { background: rgba(0,0,0,0.5); position: fixed; top: 0; left: 0; width: 100%; height: 100%; display: none; }
-        .overlay.show { display: block; }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: #fff5f8;
+            color: #444;
+            line-height: 1.6;
+            padding: 40px 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 35px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #f8e0eb;
+        }
+
+        h1 {
+            color: #d64891;
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .welcome {
+            font-size: 16px;
+            color: #888;
+        }
+
+        .nav-links {
+            margin-top: 15px;
+        }
+
+        .nav-links a {
+            color: #e85ab1;
+            text-decoration: none;
+            margin: 0 10px;
+            font-weight: 500;
+        }
+
+        .nav-links a:hover {
+            color: #c53890;
+            text-decoration: underline;
+        }
+
+        .card {
+            background: #ffffff;
+            padding: 25px 30px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            box-shadow: 0 2px 8px rgba(214, 72, 145, 0.06);
+        }
+
+        h3 {
+            color: #b83b7a;
+            font-size: 18px;
+            margin-bottom: 18px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        th {
+            background-color: #fce8f0;
+            color: #a0266f;
+            padding: 14px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        td {
+            padding: 14px;
+            border-bottom: 1px solid #f8e0eb;
+        }
+
+        tr:hover {
+            background-color: #fff0f6;
+        }
+
+        button {
+            background-color: #e85ab1;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-right: 5px;
+            transition: background-color 0.2s ease;
+        }
+
+        button:hover {
+            background-color: #d64891;
+        }
+
+        button.delete {
+            background-color: #f088b8;
+        }
+
+        button.delete:hover {
+            background-color: #e06898;
+        }
+
+        input {
+            width: 100%;
+            max-width: 400px;
+            padding: 10px 12px;
+            margin: 8px 0;
+            border: 1px solid #f0c8d8;
+            border-radius: 6px;
+            font-size: 15px;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #e85ab1;
+        }
+
+        #liveFeed {
+            background: #fff9fb;
+            padding: 15px;
+            border-radius: 8px;
+            height: 150px;
+            overflow-y: auto;
+            border: 1px solid #f8e0eb;
+        }
+
+        #liveFeed li {
+            list-style: none;
+            padding: 8px 0;
+            border-bottom: 1px solid #fef0f5;
+            font-size: 14px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        #editModal {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(214, 72, 145, 0.15);
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 100;
+            min-width: 350px;
+        }
+
+        #editModal p {
+            margin: 12px 0;
+        }
+
+        #editModal input,
+        #editModal select {
+            width: 100%;
+            margin-top: 5px;
+        }
+
+        .overlay {
+            background: rgba(0, 0, 0, 0.5);
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: none;
+            z-index: 99;
+        }
+
+        .overlay.show {
+            display: block;
+        }
     </style>
     <script src="/socket.io/socket.io.js"></script>
 </head>
 <body>
-    <h1>🔐 Admin Dashboard</h1>
-    <p>Welcome, <span id="adminName"></span> | <a href="#" onclick="logout()">Logout</a></p>
+    <div class="container">
+        <div class="header">
+            <h1>🔐 Admin Dashboard</h1>
+            <p class="welcome">Welcome, <span id="adminName"></span></p>
+            <div class="nav-links">
+                <a href="profile.html">My Profile</a> |
+                <a href="#" onclick="logout()">Logout</a>
+            </div>
+        </div>
 
-    <h3>🔴 Live Login Feed</h3>
-    <ul id="liveFeed"></ul>
+        <div class="card">
+            <h3>🔴 Live Login Feed</h3>
+            <ul id="liveFeed"></ul>
+        </div>
 
-    <h3>📢 Send Broadcast</h3>
-    <input type="text" id="broadcastInput" placeholder="Type announcement..." style="padding: 8px; width: 300px;">
-    <button onclick="sendBroadcast()">Send</button>
+        <div class="card">
+            <h3>📢 Send Broadcast</h3>
+            <input type="text" id="broadcastInput" placeholder="Type announcement...">
+            <button onclick="sendBroadcast()">Send</button>
+        </div>
 
-    <h3>👥 User Management</h3>
-    <table>
-        <thead>
-            <tr><th>ID</th><th>Name</th><th>Email</th><th>Role</th><th>Actions</th></tr>
-        </thead>
-        <tbody id="userTableBody"></tbody>
-    </table>
+        <div class="card">
+            <h3>👥 User Management</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Role</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="userTableBody"></tbody>
+            </table>
+        </div>
+    </div>
 
     <div id="overlay" class="overlay" onclick="closeModal()"></div>
     <div id="editModal" class="hidden">
@@ -41,7 +238,7 @@
         <input type="hidden" id="editId">
         <p>Name: <input type="text" id="editName"></p>
         <p>Email: <input type="email" id="editEmail"></p>
-        <p>Role: 
+        <p>Role:
             <select id="editRole">
                 <option value="user">User</option>
                 <option value="staff">Staff</option>
@@ -54,106 +251,119 @@
 
     <script>
         const socket = io();
-        let cachedUsers = [];
-        const user = JSON.parse(localStorage.getItem('user'));
-        document.getElementById('adminName').textContent = user?.name || 'Admin';
+let cachedUsers = [];
+const user = JSON.parse(localStorage.getItem('user'));
+document.getElementById('adminName').textContent = user?.name || 'Admin';
 
-        socket.on('user_logged_in', (data) => {
-            const li = document.createElement('li');
-            li.textContent = `${data.name} (${data.role}) logged in at ${new Date(data.time).toLocaleTimeString()}`;
-            document.getElementById('liveFeed').prepend(li);
-        });
+// ✅ AUTO GREETING
+document.addEventListener('DOMContentLoaded', function() {
+  if (user) {
+    const liveFeed = document.getElementById('liveFeed');
+    if (liveFeed) {
+      const greeting = document.createElement('li');
+      greeting.textContent = `👋 Welcome back, ${user.name}! — System Broadcast`;
+      liveFeed.insertBefore(greeting, liveFeed.firstChild);
+    }
+  }
+});
 
-        socket.on('new_announcement', (data) => {
-            alert('📢 New Announcement: ' + data.message);
-        });
+socket.on('user_logged_in', (data) => {
+  const li = document.createElement('li');
+  li.textContent = `${data.name} (${data.role}) logged in at ${new Date(data.time).toLocaleTimeString()}`;
+  document.getElementById('liveFeed').prepend(li);
+});
 
-        async function loadUsers() {
-            const res = await fetch('/api/users', {
-                headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-            });
-            cachedUsers = await res.json();
-            renderUsers();
-        }
+socket.on('new_announcement', (data) => {
+  alert('📢 New Announcement: ' + data.message);
+});
 
-        function renderUsers() {
-            const tbody = document.getElementById('userTableBody');
-            tbody.innerHTML = cachedUsers.map(u => `
-                <tr>
-                    <td>${u.id}</td>
-                    <td>${u.name}</td>
-                    <td>${u.email}</td>
-                    <td>${u.role}</td>
-                    <td>
-                        <button onclick="editUser(${u.id})">Edit</button>
-                        <button onclick="deleteUser(${u.id})">Delete</button>
-                    </td>
-                </tr>`).join('');
-        }
+async function loadUsers() {
+  const res = await fetch('/api/users', {
+    headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+  });
+  cachedUsers = await res.json();
+  renderUsers();
+}
 
-        function editUser(id) {
-            const u = cachedUsers.find(x => x.id === id);
-            document.getElementById('editId').value = u.id;
-            document.getElementById('editName').value = u.name;
-            document.getElementById('editEmail').value = u.email;
-            document.getElementById('editRole').value = u.role;
-            document.getElementById('editModal').classList.remove('hidden');
-            document.getElementById('overlay').classList.add('show');
-        }
+function renderUsers() {
+  const tbody = document.getElementById('userTableBody');
+  tbody.innerHTML = cachedUsers.map(u => `
+    <tr>
+      <td>${u.id}</td>
+      <td>${u.name}</td>
+      <td>${u.email}</td>
+      <td>${u.role}</td>
+      <td>
+        <button onclick="editUser(${u.id})">Edit</button>
+        <button class="delete" onclick="deleteUser(${u.id})">Delete</button>
+      </td>
+    </tr>`).join('');
+}
 
-        function closeModal() {
-            document.getElementById('editModal').classList.add('hidden');
-            document.getElementById('overlay').classList.remove('show');
-        }
+function editUser(id) {
+  const u = cachedUsers.find(x => x.id === id);
+  document.getElementById('editId').value = u.id;
+  document.getElementById('editName').value = u.name;
+  document.getElementById('editEmail').value = u.email;
+  document.getElementById('editRole').value = u.role;
+  document.getElementById('editModal').classList.remove('hidden');
+  document.getElementById('overlay').classList.add('show');
+}
 
-        async function saveUser() {
-            const id = document.getElementById('editId').value;
-            const body = {
-                name: document.getElementById('editName').value,
-                email: document.getElementById('editEmail').value,
-                role: document.getElementById('editRole').value
-            };
-            const res = await fetch(`/api/users/${id}`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
-                },
-                body: JSON.stringify(body)
-            });
-            if (res.status === 204) { closeModal(); loadUsers(); }
-            else if (res.status === 409) alert('Email already in use');
-        }
+function closeModal() {
+  document.getElementById('editModal').classList.add('hidden');
+  document.getElementById('overlay').classList.remove('show');
+}
 
-        async function deleteUser(id) {
-            if (!confirm('Delete this user?')) return;
-            const res = await fetch(`/api/users/${id}`, {
-                method: 'DELETE',
-                headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-            });
-            if (res.status === 204) loadUsers();
-            else if (res.status === 400) alert('You cannot delete yourself');
-        }
+async function saveUser() {
+  const id = document.getElementById('editId').value;
+  const body = {
+    name: document.getElementById('editName').value,
+    email: document.getElementById('editEmail').value,
+    role: document.getElementById('editRole').value
+  };
+  const res = await fetch(`/api/users/${id}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${localStorage.getItem('token')}`
+    },
+    body: JSON.stringify(body)
+  });
+  if (res.status === 204) { closeModal(); loadUsers(); }
+  else if (res.status === 409) alert('Email already in use');
+}
 
-        async function sendBroadcast() {
-            const message = document.getElementById('broadcastInput').value;
-            const res = await fetch('/api/broadcast', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
-                },
-                body: JSON.stringify({ message })
-            });
-            if (res.status === 201) document.getElementById('broadcastInput').value = '';
-        }
+async function deleteUser(id) {
+  if (!confirm('Delete this user?')) return;
+  const res = await fetch(`/api/users/${id}`, {
+    method: 'DELETE',
+    headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+  });
+  if (res.status === 204) loadUsers();
+  else if (res.status === 400) alert('You cannot delete yourself');
+}
 
-        function logout() {
-            localStorage.clear();
-            window.location.href = 'login.html';
-        }
+async function sendBroadcast() {
+  const message = document.getElementById('broadcastInput').value;
+  const res = await fetch('/api/broadcast', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${localStorage.getItem('token')}`
+    },
+    body: JSON.stringify({ message })
+  });
+  if (res.status === 201) document.getElementById('broadcastInput').value = '';
+}
 
-        loadUsers();
+function logout() {
+  localStorage.clear();
+  window.location.href = 'login.html';
+}
+
+loadUsers();
+
     </script>
 </body>
 </html>

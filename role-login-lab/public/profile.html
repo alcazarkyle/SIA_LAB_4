@@ -3,17 +3,134 @@
 <head>
     <title>Profile</title>
     <style>
-        body { font-family: Arial; max-width: 500px; margin: 50px auto; padding: 20px; }
-        input { width: 100%; margin: 8px 0; padding: 10px; box-sizing: border-box; }
-        button { padding: 10px 20px; cursor: pointer; background: #28a745; color: white; border: none; border-radius: 4px; }
-        a { color: #007bff; text-decoration: none; }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: #fff5f8;
+            color: #444;
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 450px;
+        }
+
+        .card {
+            background: #ffffff;
+            padding: 35px 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(214, 72, 145, 0.08);
+        }
+
+        h1 {
+            color: #d64891;
+            font-size: 24px;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .back-link {
+            color: #e85ab1;
+            text-decoration: none;
+            display: inline-block;
+            margin-bottom: 25px;
+            font-size: 15px;
+        }
+
+        .back-link:hover {
+            color: #c53890;
+            text-decoration: underline;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px 15px;
+            margin: 0 0 15px;
+            border: 1px solid #f0c8d8;
+            border-radius: 6px;
+            font-size: 15px;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #e85ab1;
+        }
+
+        button {
+            background-color: #e85ab1;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 15px;
+            transition: background-color 0.2s ease;
+        }
+
+        button:hover {
+            background-color: #d64891;
+        }
     </style>
 </head>
 <body>
-    <h1>👤 Change Password</h1>
-    <p><a href="#" onclick="history.back()">← Go Back</a></p>
-    
-    <input type="password" id="curPw" placeholder="Current Password">
-    <input type="password" id="newPw" placeholder="New Password">
-    <button onclick="changePassword()">Update Password</button>
+    <div class="container">
+        <div class="card">
+            <a href="#" onclick="history.back()" class="back-link">← Go Back</a>
+            <h1>👤 Change Password</h1>
+            
+            <input type="password" id="curPw" placeholder="Current Password">
+            <input type="password" id="newPw" placeholder="New Password">
+            <button onclick="changePassword()">Update Password</button>
+        </div>
+    </div>
 
+    <script>
+        async function changePassword() {
+            const currentPassword = document.getElementById('curPw').value;
+            const newPassword = document.getElementById('newPw').value;
+
+            if (!currentPassword || !newPassword) {
+                alert('Please fill in all fields');
+                return;
+            }
+
+            if (newPassword.length < 6) {
+                alert('New password must be at least 6 characters');
+                return;
+            }
+
+            const res = await fetch('/api/change-password', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                },
+                body: JSON.stringify({ currentPassword, newPassword })
+            });
+
+            if (res.ok) {
+                alert('Password updated successfully!');
+                document.getElementById('curPw').value = '';
+                document.getElementById('newPw').value = '';
+            } else if (res.status === 401) {
+                alert('Current password is incorrect');
+            } else {
+                alert('Failed to update password');
+            }
+        }
+    </script>
+</body>
+</html>

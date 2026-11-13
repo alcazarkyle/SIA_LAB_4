@@ -3,48 +3,149 @@
 <head>
     <title>User Dashboard</title>
     <style>
-        body { font-family: Arial; max-width: 800px; margin: 20px auto; padding: 0 20px; }
-        ul { list-style: none; padding: 0; }
-        li { padding: 10px; border-bottom: 1px solid #eee; }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: #fff5f8;
+            color: #444;
+            line-height: 1.6;
+            padding: 40px 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 35px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #f8e0eb;
+        }
+
+        h1 {
+            color: #d64891;
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .welcome {
+            font-size: 16px;
+            color: #888;
+        }
+
+        .nav-links {
+            margin-top: 15px;
+        }
+
+        .nav-links a {
+            color: #e85ab1;
+            text-decoration: none;
+            margin: 0 10px;
+            font-weight: 500;
+        }
+
+        .nav-links a:hover {
+            color: #c53890;
+            text-decoration: underline;
+        }
+
+        .card {
+            background: #ffffff;
+            padding: 25px 30px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            box-shadow: 0 2px 8px rgba(214, 72, 145, 0.06);
+        }
+
+        h3 {
+            color: #b83b7a;
+            font-size: 18px;
+            margin-bottom: 18px;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        li {
+            padding: 12px 15px;
+            border-bottom: 1px solid #f8e0eb;
+            border-radius: 4px;
+        }
+
+        li:last-child {
+            border-bottom: none;
+        }
+
+        li:hover {
+            background-color: #fff0f6;
+        }
     </style>
     <script src="/socket.io/socket.io.js"></script>
 </head>
 <body>
-    <h1>👤 User Dashboard</h1>
-    <p>Welcome, <span id="userName"></span> | <a href="#" onclick="logout()">Logout</a></p>
+    <div class="container">
+        <div class="header">
+            <h1>👤 User Dashboard</h1>
+            <p class="welcome">Welcome, <span id="userName"></span></p>
+            <div class="nav-links">
+                <a href="profile.html">My Profile</a> |
+                <a href="#" onclick="logout()">Logout</a>
+            </div>
+        </div>
 
-    <h3>📢 Announcements</h3>
-    <ul id="feed"></ul>
+        <div class="card">
+            <h3>📢 Announcements</h3>
+            <ul id="feed"></ul>
+        </div>
+    </div>
 
     <script>
-        const socket = io();
-        const user = JSON.parse(localStorage.getItem('user'));
-        document.getElementById('userName').textContent = user?.name || 'User';
-
-        socket.on('new_announcement', (data) => {
-            const li = document.createElement('li');
-            li.textContent = '🔔 ' + data.message + ' — ' + new Date(data.time).toLocaleTimeString();
-            document.getElementById('feed').prepend(li);
-        });
-
         async function loadAnnouncements() {
-            const res = await fetch('/api/announcements', {
-                headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-            });
-            const announcements = await res.json();
-            announcements.forEach(a => {
-                const li = document.createElement('li');
-                li.textContent = a.message + ' — ' + new Date(a.created_at).toLocaleString();
-                document.getElementById('feed').appendChild(li);
-            });
-        }
+  const userData = localStorage.getItem('user');
+  
+  if (userData) {
+    const user = JSON.parse(userData);
+    document.getElementById('userName').textContent = user.name;
+  }
 
-        function logout() {
-            localStorage.clear();
-            window.location.href = 'login.html';
-        }
+  const res = await fetch('/api/announcements', {
+    headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+  });
+  const announcements = await res.json();
+  
+  const feed = document.getElementById('feed');
+  
+  if (userData) {
+    const user = JSON.parse(userData);
+    const greeting = document.createElement('li');
+    greeting.textContent = `👋 Welcome back, ${user.name}! — System Broadcast`;
+    feed.appendChild(greeting);
+  }
+  
+  announcements.forEach(a => {
+    const li = document.createElement('li');
+    li.textContent = a.message + ' — ' + new Date(a.created_at).toLocaleString();
+    feed.appendChild(li);
+  });
+}
 
-        loadAnnouncements();
+function logout() {
+  localStorage.clear();
+  window.location.href = 'login.html';
+}
+
+loadAnnouncements();
+
     </script>
 </body>
 </html>
