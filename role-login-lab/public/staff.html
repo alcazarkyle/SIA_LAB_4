@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Staff Dashboard</title>
+    <style>
+        body { font-family: Arial; max-width: 800px; margin: 20px auto; padding: 0 20px; }
+        ul { list-style: none; padding: 0; }
+        li { padding: 10px; border-bottom: 1px solid #eee; }
+    </style>
+    <script src="/socket.io/socket.io.js"></script>
+</head>
+<body>
+    <h1>🏢 Staff Dashboard</h1>
+    <p>Welcome, <span id="staffName"></span> | <a href="#" onclick="logout()">Logout</a></p>
+
+    <h3>📢 Announcements</h3>
+    <ul id="feed"></ul>
+
+    <script>
+        const socket = io();
+        const user = JSON.parse(localStorage.getItem('user'));
+        document.getElementById('staffName').textContent = user?.name || 'Staff';
+
+        socket.on('new_announcement', (data) => {
+            const li = document.createElement('li');
+            li.textContent = '🔔 ' + data.message + ' — ' + new Date(data.time).toLocaleTimeString();
+            document.getElementById('feed').prepend(li);
+        });
+
+        async function loadAnnouncements() {
+            const res = await fetch('/api/announcements', {
+                headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+            });
+            const announcements = await res.json();
+            announcements.forEach(a => {
+                const li = document.createElement('li');
+                li.textContent = a.message + ' — ' + new Date(a.created_at).toLocaleString();
+                document.getElementById('feed').appendChild(li);
+            });
+        }
+
+        function logout() {
+            localStorage.clear();
+            window.location.href = 'login.html';
+        }
+
+        loadAnnouncements();
+    </script>
+</body>
+</html>
